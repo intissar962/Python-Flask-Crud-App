@@ -25,6 +25,9 @@ class Contact(db.Model):
 with app.app_context():
     db.create_all()
 
+#Index
+#Cette route affiche la liste des contacts avec une pagination de 5 contacts par page.
+#La pagination est réalisée avec la fonction paginate de SQLAlchemy.
 @app.route('/')
 def Index():
     total_contacts = db.session.query(func.count(Contact.id)).scalar()
@@ -33,6 +36,9 @@ def Index():
     all_data = Contact.query.paginate(page=page, per_page=per_page)
     return render_template("index.html", contacts=all_data, total_contacts=total_contacts)
 
+#Ajout d'un nouveau contact
+#Cette route gère la soumission du formulaire
+#pour ajouter un nouveau contact à la base de données.
 @app.route('/ajouter', methods=['POST'])
 def Ajouter():
     if request.method == 'POST':
@@ -45,7 +51,8 @@ def Ajouter():
         db.session.commit()
         flash('Contact ajouté avec succès')
         return redirect(url_for('Index'))
-    
+
+#Modifier un contact    
 @app.route('/modifier', methods=['POST', 'GET'])
 def Modifier():
     if request.method == 'POST':
@@ -57,6 +64,7 @@ def Modifier():
         flash('Contact modifié avec succès')
         return redirect(url_for('Index'))
     
+#supprimer un contact via id passé dans l'url
 @app.route('/supprimer/<id>/', methods=['POST', 'GET'])
 def Supprimer(id):
     if request.method == 'GET':
@@ -65,7 +73,9 @@ def Supprimer(id):
         db.session.commit()
         flash('Contact supprimé avec succès')
         return redirect(url_for('Index'))
+    
 
+#Rechercher un contact par nom ou par numéro de téléphone
 @app.route('/recherche', methods=['GET', 'POST'])
 def Recherche():
     if request.method == 'POST':
@@ -93,12 +103,14 @@ def Recherche():
     return render_template('index.html', contacts=all_data, total_contacts=total_contacts)
 
 
-# Add a new route to reset the search
+# Réinitialisation de la recherche
+
 @app.route('/annuler_recherche')
 def AnnulerRecherche():
     # Clear any stored search term
     return redirect(url_for('Index'))
 
+#Exporter les contacts sous forme d'un fichier JSON
 @app.route('/export_json')
 def export_json():
     # Fetch all contacts from the database
